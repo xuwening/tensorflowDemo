@@ -9,11 +9,12 @@ import numpy as np
 
 
 # 构造数据
-
+# 100个数据 x，和100个数据 y
 x_data = np.random.rand(100).astype(np.float32)
 y_data = x_data * 0.1 + 0.3
 
 # 建立tensorflow神经计算结构
+# 随机一个权重，biases为0，然后定义y公式，使用上面数据训练，推导出weight、biases
 weight = tf.Variable(tf.random_uniform([1], -1.0, 1.0))
 biases = tf.Variable(tf.zeros([1]))
 y = weight * x_data + biases
