@@ -1,5 +1,6 @@
 from math import log
 import operator
+import copy
 
 
 def createDataSet():
@@ -82,7 +83,7 @@ def chooseBestFeatureToSplilt(dataSet):
             bestInfoGain = infoGain
             bestFeature = i
 
-    return bestInfoGain, bestFeature
+    return bestFeature
 
 def majorityCnt(classList):
     
@@ -104,22 +105,38 @@ def createTree(dataSet, labels):
     if len(dataSet[0]) == 1:
         return majorityCnt(classList)
 
-    besetFeat = chooseBestFeatureToSplilt(dataSet)
+    bestFeat = chooseBestFeatureToSplilt(dataSet)
 
-    besetFeat = labels[besetFeat]
-    myTree = {besetFeatLabel: {}}
-    del(labels[besetFeat])
+    bestFeatLabel = labels[bestFeat]
+    myTree = {bestFeatLabel: {}}
+    del(labels[bestFeat])
 
-    featValues = [example[besetFeat] for example in dataSet]
+    featValues = [example[bestFeat] for example in dataSet]
     uniqueVals = set(featValues)
 
     for value in uniqueVals:
         subLabels = labels[:]
-        myTree[besetFeatLabel][value] = createTree(splitDataSet(dataSet, bestFeat, value), subLabels)
+        myTree[bestFeatLabel][value] = createTree(splitDataSet(dataSet, bestFeat, value), subLabels)
 
     return myTree
+
+def classify(inputTree, featLabels, testVec):
+    firstStr = inputTree.keys()[0]
+    secondDict = inputTree[firstStr]
+    featIndex = featLabels.index(firstStr)
+
+    for key in secondDict.keys():
+        if testVec[featIndex] == key:
+            if type(secondDict[key]).__name__ == 'dict':
+                classLabel = classify(secondDict[key], featLabels, testVec)
+            else:
+                classLabel = secondDict[key]
+    return classLabel
 
 
 if __name__ == '__main__':
     dat, labels = createDataSet()
-    print(chooseBestFeatureToSplilt(dat))
+    # print(chooseBestFeatureToSplilt(dat))
+    tempLabels = copy.deepcopy(labels)
+    myTree = createTree(dat, tempLabels)
+    print(classify(myTree, labels, [1,1]))
